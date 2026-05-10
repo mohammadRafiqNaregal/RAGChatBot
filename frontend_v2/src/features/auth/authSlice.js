@@ -1,5 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { loginRequest, registerRequest } from '@/lib/api/auth';
+import { loginRequest } from '@/lib/api/auth';
+
+export const USER_ROLE_OPTIONS = [
+  'Admin',
+  'HR User',
+  'Finance User',
+  'IT User',
+  'Employee',
+];
 
 const AUTH_STORAGE_KEY = 'frontend_v2.auth';
 
@@ -83,18 +91,6 @@ export const loginUser = createAsyncThunk(
   },
 );
 
-export const registerUser = createAsyncThunk(
-  'auth/registerUser',
-  async ({ username, email, password }, { rejectWithValue }) => {
-    try {
-      const payload = await registerRequest({ username, email, password });
-      return normalizeAuthPayload(payload, username);
-    } catch (error) {
-      return rejectWithValue(error.message || 'Unable to register');
-    }
-  },
-);
-
 const storedAuth = readStoredAuth();
 
 const authSlice = createSlice({
@@ -130,28 +126,13 @@ const authSlice = createSlice({
         state.error = null;
         state.token = action.payload.token;
         state.user = action.payload.user;
+        state.role = action.payload.role;
         state.isAuthenticated = true;
         persistAuth(action.payload);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || 'Unable to login';
-      })
-      .addCase(registerUser.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(registerUser.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        state.token = action.payload.token;
-        state.user = action.payload.user;
-        state.isAuthenticated = true;
-        persistAuth(action.payload);
-      })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || 'Unable to register';
       });
   },
 });

@@ -1,20 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  clearAuthError,
-  loginUser,
-  registerUser,
-} from '@/features/auth/authSlice';
+import { clearAuthError, loginUser } from '@/features/auth/authSlice';
 
 const initialForm = {
   username: '',
-  email: '',
   password: '',
 };
 
@@ -25,14 +27,12 @@ export default function AuthPage() {
   const { error, isAuthenticated, isLoading, user } = useSelector(
     (state) => state.auth,
   );
-  const [mode, setMode] = useState('login');
   const [form, setForm] = useState(initialForm);
 
   const redirectPath = useMemo(
     () => location.state?.from || '/chat',
     [location.state],
   );
-  const isRegisterMode = mode === 'register';
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -58,17 +58,6 @@ export default function AuthPage() {
     event.preventDefault();
     dispatch(clearAuthError());
 
-    if (isRegisterMode) {
-      await dispatch(
-        registerUser({
-          username: form.username,
-          email: form.email,
-          password: form.password,
-        }),
-      );
-      return;
-    }
-
     await dispatch(
       loginUser({
         username: form.username,
@@ -82,35 +71,18 @@ export default function AuthPage() {
       <div className="w-full max-w-md">
         <Card className="w-full border-border/60 shadow-sm">
           <CardHeader className="w-full border-b">
-            <div className="flex w-full items-start justify-between gap-3">
-              <div className="space-y-1">
-                <CardTitle>
-                  {isRegisterMode ? 'Create your account' : 'Login to continue'}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {isRegisterMode
-                    ? 'Username, email and password are required for new users.'
-                    : 'Use your username and password to sign in.'}
-                </p>
+            <div className="flex w-full flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">Admin Portal</Badge>
+                {user ? <Badge variant="outline">{user.username}</Badge> : null}
               </div>
-              {isRegisterMode && (
-                <button
-                  className={`rounded-md px-3 py-1.5 text-sm transition ${!isRegisterMode ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
-                  onClick={() => setMode('login')}
-                  type="button"
-                >
-                  Login
-                </button>
-              )}
-              {!isRegisterMode && (
-                <button
-                  className={`rounded-md px-3 py-1.5 text-sm transition ${isRegisterMode ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
-                  onClick={() => setMode('register')}
-                  type="button"
-                >
-                  Register
-                </button>
-              )}
+              <div className="space-y-1">
+                <CardTitle>Login to continue</CardTitle>
+                <CardDescription>
+                  User accounts are created by administrators. Sign in with your
+                  assigned username and initial password.
+                </CardDescription>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="pt-6">
@@ -133,27 +105,11 @@ export default function AuthPage() {
                   value={form.username}
                 />
               </div>
-              {isRegisterMode ? (
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    autoComplete="email"
-                    id="email"
-                    onChange={updateField('email')}
-                    placeholder="Enter your email"
-                    required
-                    type="email"
-                    value={form.email}
-                  />
-                </div>
-              ) : null}
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
-                  autoComplete={
-                    isRegisterMode ? 'new-password' : 'current-password'
-                  }
+                  autoComplete="current-password"
                   id="password"
                   onChange={updateField('password')}
                   placeholder="Enter your password"
@@ -164,11 +120,7 @@ export default function AuthPage() {
               </div>
 
               <Button className="w-full" disabled={isLoading} type="submit">
-                {isLoading
-                  ? 'Please wait...'
-                  : isRegisterMode
-                    ? 'Create account'
-                    : 'Login'}
+                {isLoading ? 'Please wait...' : 'Login'}
               </Button>
             </form>
           </CardContent>

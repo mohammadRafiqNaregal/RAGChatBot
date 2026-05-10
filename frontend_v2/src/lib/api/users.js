@@ -15,13 +15,14 @@ const parseJson = async (response) => {
   }
 };
 
-const request = async (path, payload) => {
+const authorizedRequest = async ({ path, method = 'GET', token, body }) => {
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'POST',
+    method,
     headers: {
-      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
     },
-    body: JSON.stringify(payload),
+    body: body ? JSON.stringify(body) : undefined,
   });
 
   const data = await parseJson(response);
@@ -33,5 +34,13 @@ const request = async (path, payload) => {
   return data;
 };
 
-export const loginRequest = async ({ username, password }) =>
-  request('/auth/login', { username, password });
+export const fetchUsersRequest = async ({ token }) =>
+  authorizedRequest({ path: '/users', token });
+
+export const createUserRequest = async ({ token, payload }) =>
+  authorizedRequest({
+    path: '/users',
+    method: 'POST',
+    token,
+    body: payload,
+  });

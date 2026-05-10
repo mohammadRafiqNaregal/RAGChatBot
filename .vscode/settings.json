@@ -1,0 +1,3 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/fastapi-clean/.venv/bin/python"
+}

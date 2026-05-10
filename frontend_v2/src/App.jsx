@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { NavLink, Route, Routes } from 'react-router-dom';
+import { Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { SparklesIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,8 @@ import RAGChatBot from './pages/RAGChatBot';
 import AuthPage from './pages/AuthPage';
 import AdminUploadPage from './pages/AdminUploadPage';
 import AdminDocumentsPage from './pages/AdminDocumentsPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import KnowledgeBasePage from './pages/KnowledgeBasePage';
 
 function App() {
   const dispatch = useDispatch();
@@ -42,21 +44,21 @@ function App() {
             <NavLink className={navLinkClass} to="/" end>
               Home
             </NavLink>
-            {/* {isAuthenticated ? ( */}
-            <NavLink className={navLinkClass} to="/chat">
-              Chat
-            </NavLink>
-            {/* ) : null} */}
-            {/* {isAdmin ? ( */}
-            <NavLink className={navLinkClass} to="/admin/upload">
-              Upload Docs
-            </NavLink>
-            {/* ) : null} */}
-            {/* {isAdmin ? ( */}
-            <NavLink className={navLinkClass} to="/admin/documents">
-              View Docs
-            </NavLink>
-            {/* ) : null} */}
+            {isAuthenticated ? (
+              <NavLink className={navLinkClass} to="/chat">
+                Chat
+              </NavLink>
+            ) : null}
+            {isAdmin ? (
+              <NavLink className={navLinkClass} to="/users">
+                Users
+              </NavLink>
+            ) : null}
+            {isAdmin ? (
+              <NavLink className={navLinkClass} to="/knowledgebase">
+                Knowledge Base
+              </NavLink>
+            ) : null}
             <NavLink className={navLinkClass} to="/about">
               About
             </NavLink>
@@ -68,22 +70,21 @@ function App() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* {user ? ( */}
-            <Badge variant="outline">
-              {user?.username} ({user?.role}){' '}
-              {user?.username ? user?.username : 'Guest'}
-            </Badge>
-            {/* ) : null} */}
-            {/* {isAuthenticated ? ( */}
-            <Button
-              onClick={() => dispatch(logout())}
-              size="sm"
-              type="button"
-              variant="outline"
-            >
-              Logout
-            </Button>
-            {/* ) : null} */}
+            {user ? (
+              <Badge variant="outline">
+                {user.username} ({user.role})
+              </Badge>
+            ) : null}
+            {isAuthenticated ? (
+              <Button
+                onClick={() => dispatch(logout())}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Logout
+              </Button>
+            ) : null}
           </div>
         </div>
       </header>
@@ -96,26 +97,38 @@ function App() {
           <Route
             path="/chat"
             element={
-              // <ProtectedRoute>
-              <RAGChatBot />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <RAGChatBot />
+              </ProtectedRoute>
             }
           />
           <Route
-            path="/admin/upload"
+            path="/users"
             element={
-              // <ProtectedRoute requiredRole="Admin">
-              <AdminUploadPage />
-              // </ProtectedRoute>
+              <ProtectedRoute requiredRole="Admin">
+                <AdminUsersPage />
+              </ProtectedRoute>
             }
           />
           <Route
-            path="/admin/documents"
+            path="/knowledgebase"
             element={
-              // <ProtectedRoute requiredRole="Admin">
-              <AdminDocumentsPage />
-              // </ProtectedRoute>
+              <ProtectedRoute requiredRole="Admin">
+                <KnowledgeBasePage />
+              </ProtectedRoute>
             }
+          >
+            <Route index element={<Navigate to="upload" replace />} />
+            <Route path="upload" element={<AdminUploadPage />} />
+            <Route path="documents" element={<AdminDocumentsPage />} />
+          </Route>
+          <Route
+            path="/upload"
+            element={<Navigate to="/knowledgebase/upload" replace />}
+          />
+          <Route
+            path="/documents"
+            element={<Navigate to="/knowledgebase/documents" replace />}
           />
         </Routes>
       </main>

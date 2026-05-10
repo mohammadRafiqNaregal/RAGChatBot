@@ -41,7 +41,7 @@ export default function AdminUploadPage() {
   );
   const [file, setFile] = useState(null);
   const [form, setForm] = useState(initialForm);
-  const [allowedRoles, setAllowedRoles] = useState(['employee']);
+  const [allowedRoles, setAllowedRoles] = useState(['Employee']);
 
   const parsedTags = useMemo(
     () =>

@@ -1,5 +1,6 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+  // import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 const parseJson = async (response) => {
   const text = await response.text();
@@ -21,10 +22,10 @@ export const uploadDocumentRequest = async ({ token, payload }) => {
   formData.append('title', payload.title);
   formData.append('department', payload.department);
   formData.append('section', payload.section);
-  formData.append('tags', JSON.stringify(payload.tags));
-  formData.append('allowedRoles', JSON.stringify(payload.allowedRoles));
+  formData.append('tags', (payload.tags || []).join(','));
+  formData.append('allowed_roles', (payload.allowedRoles || []).join(','));
 
-  const response = await fetch(`${API_BASE_URL}/documents/upload`, {
+  const response = await fetch(`${API_BASE_URL}/api/documents/`, {
     method: 'POST',
     headers: token
       ? {
@@ -41,4 +42,39 @@ export const uploadDocumentRequest = async ({ token, payload }) => {
   }
 
   return data;
+};
+
+export const fetchDocumentsRequest = async ({ token }) => {
+  const response = await fetch(`${API_BASE_URL}/api/documents/`, {
+    method: 'GET',
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`,
+        }
+      : undefined,
+  });
+
+  const data = await parseJson(response);
+
+  if (!response.ok) {
+    throw new Error(data.detail || data.message || 'Unable to load documents');
+  }
+
+  return Array.isArray(data) ? data : [];
+};
+
+export const deleteDocumentRequest = async ({ token, documentId }) => {
+  const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}`, {
+    method: 'DELETE',
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`,
+        }
+      : undefined,
+  });
+
+  if (!response.ok) {
+    const data = await parseJson(response);
+    throw new Error(data.detail || data.message || 'Unable to delete document');
+  }
 };
