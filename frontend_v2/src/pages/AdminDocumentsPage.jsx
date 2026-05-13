@@ -24,6 +24,7 @@ import {
   deleteDocument,
   fetchDocuments,
 } from '@/features/documents/documentsSlice';
+import { getDocumentFileUrl } from '@/lib/api/documents';
 
 export default function AdminDocumentsPage() {
   const dispatch = useDispatch();
@@ -184,6 +185,24 @@ export default function AdminDocumentsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant="outline"
+                            disabled={!(doc.fileName || doc.filename)}
+                            onClick={() => {
+                              const filename = doc.fileName || doc.filename;
+                              if (filename) {
+                                window.open(
+                                  getDocumentFileUrl(filename),
+                                  '_blank',
+                                  'noopener,noreferrer',
+                                );
+                              }
+                            }}
+                          >
+                            View
+                          </Button>
                           <Button
                             size="sm"
                             type="button"

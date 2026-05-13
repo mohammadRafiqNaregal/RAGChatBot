@@ -63,6 +63,9 @@ export const fetchDocumentsRequest = async ({ token }) => {
   return Array.isArray(data) ? data : [];
 };
 
+export const getDocumentFileUrl = (filename) =>
+  `${API_BASE_URL}/uploads/${filename}`;
+
 export const deleteDocumentRequest = async ({ token, documentId }) => {
   const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}`, {
     method: 'DELETE',
